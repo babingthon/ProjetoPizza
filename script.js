@@ -99,16 +99,83 @@ c('.pizzaInfo--addButton').addEventListener('click', ()=> {
     
 });
 
+c('.menu-openner').addEventListener('click', ()=> {
+    if(carroCompras.length>0) {
+        c('aside').style.left = '0';
+    }
+});
+
+c('.menu-closer').addEventListener('click', ()=> {
+    c('aside').style.left = '100vw';
+});
+
 function updateCarroCompras() {
+
+    c('.menu-openner span').innerHTML = carroCompras.length;
+
+
     if(carroCompras.length > 0) {
         c('aside').classList.add('show');
+        c('.cart').innerHTML = '';
+
+        let subtotal = 0;
+        let desconto = 0;
+        let total = 0;
+
         for(let i in carroCompras) {
             let pizza = pizzaJson.find((item)=> item.id == carroCompras[i].id);
-            console.log(pizza);
+            let CarrinhoItem = c('.models .cart--item').cloneNode(true);
+            subtotal += pizza.price * carroCompras[i].qt;
+
+            let pizzaNameSize;
+            switch (carroCompras[i].size) {
+                case 0:
+                    pizzaNameSize = 'P';
+                    break;
+                case 1:
+                    pizzaNameSize = 'M';
+                    break;
+                case 2:
+                    pizzaNameSize = 'G';
+                    break;
+            };
+
+            pizzaName = `${pizza.name} (${pizzaNameSize})`;
+
+            CarrinhoItem.querySelector('img').src = pizza.img;
+            CarrinhoItem.querySelector('.cart--item-nome').innerHTML = pizzaName;
+            CarrinhoItem.querySelector('.cart--item--qt').innerHTML = carroCompras[i].qt;
+
+            CarrinhoItem.querySelector('.cart--item-qtmenos').addEventListener('click', ()=> {
+                if(carroCompras[i].qt > 1 ) {
+                    carroCompras[i].qt--;
+                } else {
+                    carroCompras.splice(i, 1);
+                };
+
+                updateCarroCompras();
+
+            });
+
+            CarrinhoItem.querySelector('.cart--item-qtmais').addEventListener('click', ()=> {
+                carroCompras[i].qt++;
+                updateCarroCompras();
+            });
+
+
+            c('.cart').append(CarrinhoItem);
         }
+
+        desconto = subtotal * 0.1;
+        total = subtotal - desconto;
+
+        c('.subtotal span:last-child').innerHTML = `R$ ${subtotal.toFixed(2)}`;
+        c('.desconto span:last-child').innerHTML = `R$ ${desconto.toFixed(2)}`;
+        c('.total span:last-child').innerHTML = `R$ ${total.toFixed(2)}`;
 
     } else {
         c('aside').classList.remove('show');
+        c('aside').style.left = '100vw';
 
     };
 
